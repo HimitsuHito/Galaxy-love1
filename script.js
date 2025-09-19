@@ -1,19 +1,24 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x000000, 0.0015);
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100000
+);
 camera.position.set(0, 20, 30);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-document.getElementById('container').appendChild(renderer.domElement);
+document.getElementById("container").appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -29,12 +34,19 @@ controls.rotateSpeed = 0.3;
 controls.update();
 
 function createGlowMaterial(color, size = 128, opacity = 0.55) {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
-  const context = canvas.getContext('2d');
-  const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  const context = canvas.getContext("2d");
+  const gradient = context.createRadialGradient(
+    size / 2,
+    size / 2,
+    0,
+    size / 2,
+    size / 2,
+    size / 2
+  );
   gradient.addColorStop(0, color);
-  gradient.addColorStop(1, 'rgba(0,0,0,0)');
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
   context.fillStyle = gradient;
   context.fillRect(0, 0, size, size);
 
@@ -44,13 +56,12 @@ function createGlowMaterial(color, size = 128, opacity = 0.55) {
     transparent: true,
     opacity: opacity,
     depthWrite: false,
-    blending: THREE.AdditiveBlending
+    blending: THREE.AdditiveBlending,
   });
   return new THREE.Sprite(material);
 }
 
-
-const centralGlow = createGlowMaterial('rgba(255,255,255,0.8)', 156, 0.25);
+const centralGlow = createGlowMaterial("rgba(255,255,255,0.8)", 156, 0.25);
 centralGlow.scale.set(8, 8, 1);
 scene.add(centralGlow);
 
@@ -67,7 +78,6 @@ for (let i = 0; i < 15; i++) {
   scene.add(nebula);
 }
 
-
 const galaxyParameters = {
   count: 100000,
   arms: 6,
@@ -79,7 +89,10 @@ const galaxyParameters = {
   outsideColor: new THREE.Color(0x48b8b8),
 };
 
-const defaultHeartImages = Array.from({ length: 2 }, (_, i) => `images/img${i + 1}.jpg`);
+const defaultHeartImages = Array.from(
+  { length: 2 },
+  (_, i) => `images/img${i + 1}.jpg`
+);
 
 const heartImages = [
   ...(window.dataCCD?.data?.heartImages || []),
@@ -88,8 +101,6 @@ const heartImages = [
 
 const textureLoader = new THREE.TextureLoader();
 const numGroups = heartImages.length;
-
-
 
 const maxDensity = 50000;
 
@@ -117,15 +128,18 @@ console.log(`Số lượng ảnh: ${numGroups}, Điểm mỗi ảnh: ${pointsPer
 const positions = new Float32Array(galaxyParameters.count * 3);
 const colors = new Float32Array(galaxyParameters.count * 3);
 
-
 let pointIdx = 0;
 for (let i = 0; i < galaxyParameters.count; i++) {
-  const radius = Math.pow(Math.random(), galaxyParameters.randomnessPower) * galaxyParameters.radius;
-  const branchAngle = (i % galaxyParameters.arms) / galaxyParameters.arms * Math.PI * 2;
+  const radius =
+    Math.pow(Math.random(), galaxyParameters.randomnessPower) *
+    galaxyParameters.radius;
+  const branchAngle =
+    ((i % galaxyParameters.arms) / galaxyParameters.arms) * Math.PI * 2;
   const spinAngle = radius * galaxyParameters.spin;
 
   const randomX = (Math.random() - 0.5) * galaxyParameters.randomness * radius;
-  const randomY = (Math.random() - 0.5) * galaxyParameters.randomness * radius * 1.2; 
+  const randomY =
+    (Math.random() - 0.5) * galaxyParameters.randomness * radius * 1.2;
   const randomZ = (Math.random() - 0.5) * galaxyParameters.randomness * radius;
   const totalAngle = branchAngle + spinAngle;
 
@@ -147,8 +161,14 @@ for (let i = 0; i < galaxyParameters.count; i++) {
 }
 
 const galaxyGeometry = new THREE.BufferGeometry();
-galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(positions.slice(0, pointIdx * 3), 3));
-galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(colors.slice(0, pointIdx * 3), 3));
+galaxyGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(positions.slice(0, pointIdx * 3), 3)
+);
+galaxyGeometry.setAttribute(
+  "color",
+  new THREE.BufferAttribute(colors.slice(0, pointIdx * 3), 3)
+);
 
 const galaxyMaterial = new THREE.ShaderMaterial({
   uniforms: {
@@ -156,7 +176,7 @@ const galaxyMaterial = new THREE.ShaderMaterial({
     uSize: { value: 50.0 * renderer.getPixelRatio() },
     uRippleTime: { value: -1.0 },
     uRippleSpeed: { value: 40.0 },
-    uRippleWidth: { value: 20.0 }
+    uRippleWidth: { value: 20.0 },
   },
   vertexShader: `
         uniform float uSize;
@@ -205,15 +225,15 @@ const galaxyMaterial = new THREE.ShaderMaterial({
   blending: THREE.AdditiveBlending,
   depthWrite: false,
   transparent: true,
-  vertexColors: true
+  vertexColors: true,
 });
 const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
 scene.add(galaxy);
 
 function createNeonTexture(image, size) {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
   const aspectRatio = image.width / image.height;
   let drawWidth, drawHeight, offsetX, offsetY;
   if (aspectRatio > 1) {
@@ -233,11 +253,29 @@ function createNeonTexture(image, size) {
   ctx.beginPath();
   ctx.moveTo(offsetX + cornerRadius, offsetY);
   ctx.lineTo(offsetX + drawWidth - cornerRadius, offsetY);
-  ctx.arcTo(offsetX + drawWidth, offsetY, offsetX + drawWidth, offsetY + cornerRadius, cornerRadius);
+  ctx.arcTo(
+    offsetX + drawWidth,
+    offsetY,
+    offsetX + drawWidth,
+    offsetY + cornerRadius,
+    cornerRadius
+  );
   ctx.lineTo(offsetX + drawWidth, offsetY + drawHeight - cornerRadius);
-  ctx.arcTo(offsetX + drawWidth, offsetY + drawHeight, offsetX + drawWidth - cornerRadius, offsetY + drawHeight, cornerRadius);
+  ctx.arcTo(
+    offsetX + drawWidth,
+    offsetY + drawHeight,
+    offsetX + drawWidth - cornerRadius,
+    offsetY + drawHeight,
+    cornerRadius
+  );
   ctx.lineTo(offsetX + cornerRadius, offsetY + drawHeight);
-  ctx.arcTo(offsetX, offsetY + drawHeight, offsetX, offsetY + drawHeight - cornerRadius, cornerRadius);
+  ctx.arcTo(
+    offsetX,
+    offsetY + drawHeight,
+    offsetX,
+    offsetY + drawHeight - cornerRadius,
+    cornerRadius
+  );
   ctx.lineTo(offsetX, offsetY + cornerRadius);
   ctx.arcTo(offsetX, offsetY, offsetX + cornerRadius, offsetY, cornerRadius);
   ctx.closePath();
@@ -256,15 +294,23 @@ for (let group = 0; group < numGroups; group++) {
   for (let i = 0; i < pointsPerGroup; i++) {
     const idx = validPointCount * 3;
     const globalIdx = group * pointsPerGroup + i;
-    const radius = Math.pow(Math.random(), galaxyParameters.randomnessPower) * galaxyParameters.radius;
+    const radius =
+      Math.pow(Math.random(), galaxyParameters.randomnessPower) *
+      galaxyParameters.radius;
     if (radius < 30) continue;
 
-    const branchAngle = (globalIdx % galaxyParameters.arms) / galaxyParameters.arms * Math.PI * 2;
+    const branchAngle =
+      ((globalIdx % galaxyParameters.arms) / galaxyParameters.arms) *
+      Math.PI *
+      2;
     const spinAngle = radius * galaxyParameters.spin;
 
-    const randomX = (Math.random() - 0.5) * galaxyParameters.randomness * radius;
-    const randomY = (Math.random() - 0.5) * galaxyParameters.randomness * radius * 0.5;
-    const randomZ = (Math.random() - 0.5) * galaxyParameters.randomness * radius;
+    const randomX =
+      (Math.random() - 0.5) * galaxyParameters.randomness * radius;
+    const randomY =
+      (Math.random() - 0.5) * galaxyParameters.randomness * radius * 0.5;
+    const randomZ =
+      (Math.random() - 0.5) * galaxyParameters.randomness * radius;
     const totalAngle = branchAngle + spinAngle;
 
     groupPositions[idx] = Math.cos(totalAngle) * radius + randomX;
@@ -277,7 +323,10 @@ for (let group = 0; group < numGroups; group++) {
     groupColorsNear[idx + 2] = colorNear.b;
 
     const colorFar = galaxyParameters.insideColor.clone();
-    colorFar.lerp(galaxyParameters.outsideColor, radius / galaxyParameters.radius);
+    colorFar.lerp(
+      galaxyParameters.outsideColor,
+      radius / galaxyParameters.radius
+    );
     colorFar.multiplyScalar(0.7 + 0.3 * Math.random());
     groupColorsFar[idx] = colorFar.r;
     groupColorsFar[idx + 1] = colorFar.g;
@@ -288,17 +337,30 @@ for (let group = 0; group < numGroups; group++) {
 
   if (validPointCount === 0) continue;
 
-
   const groupGeometryNear = new THREE.BufferGeometry();
-  groupGeometryNear.setAttribute('position', new THREE.BufferAttribute(groupPositions.slice(0, validPointCount * 3), 3));
-  groupGeometryNear.setAttribute('color', new THREE.BufferAttribute(groupColorsNear.slice(0, validPointCount * 3), 3));
+  groupGeometryNear.setAttribute(
+    "position",
+    new THREE.BufferAttribute(groupPositions.slice(0, validPointCount * 3), 3)
+  );
+  groupGeometryNear.setAttribute(
+    "color",
+    new THREE.BufferAttribute(groupColorsNear.slice(0, validPointCount * 3), 3)
+  );
 
   const groupGeometryFar = new THREE.BufferGeometry();
-  groupGeometryFar.setAttribute('position', new THREE.BufferAttribute(groupPositions.slice(0, validPointCount * 3), 3));
-  groupGeometryFar.setAttribute('color', new THREE.BufferAttribute(groupColorsFar.slice(0, validPointCount * 3), 3));
+  groupGeometryFar.setAttribute(
+    "position",
+    new THREE.BufferAttribute(groupPositions.slice(0, validPointCount * 3), 3)
+  );
+  groupGeometryFar.setAttribute(
+    "color",
+    new THREE.BufferAttribute(groupColorsFar.slice(0, validPointCount * 3), 3)
+  );
 
-  const posAttr = groupGeometryFar.getAttribute('position');
-  let cx = 0, cy = 0, cz = 0;
+  const posAttr = groupGeometryFar.getAttribute("position");
+  let cx = 0,
+    cy = 0,
+    cz = 0;
   for (let i = 0; i < posAttr.count; i++) {
     cx += posAttr.getX(i);
     cy += posAttr.getY(i);
@@ -324,7 +386,7 @@ for (let group = 0; group < numGroups; group++) {
       depthWrite: true,
       depthTest: true,
       blending: THREE.NormalBlending,
-      vertexColors: true
+      vertexColors: true,
     });
 
     const materialFar = new THREE.PointsMaterial({
@@ -334,7 +396,7 @@ for (let group = 0; group < numGroups; group++) {
       alphaTest: 0.2,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      vertexColors: true
+      vertexColors: true,
     });
 
     const pointsObject = new THREE.Points(groupGeometryFar, materialFar);
@@ -349,7 +411,6 @@ for (let group = 0; group < numGroups; group++) {
   };
 }
 
-
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
 
@@ -361,17 +422,20 @@ for (let i = 0; i < starCount; i++) {
   starPositions[i * 3 + 1] = (Math.random() - 0.5) * 900;
   starPositions[i * 3 + 2] = (Math.random() - 0.5) * 900;
 }
-starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+starGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(starPositions, 3)
+);
 
 const starMaterial = new THREE.PointsMaterial({
   color: 0xffffff,
   size: 0.7,
   transparent: true,
   opacity: 0.7,
-  depthWrite: false
+  depthWrite: false,
 });
 const starField = new THREE.Points(starGeometry, starMaterial);
-starField.name = 'starfield';
+starField.name = "starfield";
 starField.renderOrder = 999;
 scene.add(starField);
 
@@ -385,7 +449,7 @@ function createShootingStar() {
     color: 0xffffff,
     transparent: true,
     opacity: 0,
-    blending: THREE.AdditiveBlending
+    blending: THREE.AdditiveBlending,
   });
   const head = new THREE.Mesh(headGeometry, headMaterial);
 
@@ -409,15 +473,19 @@ function createShootingStar() {
         `,
     transparent: true,
     blending: THREE.AdditiveBlending,
-    side: THREE.BackSide
+    side: THREE.BackSide,
   });
   const glow = new THREE.Mesh(glowGeometry, glowMaterial);
   head.add(glow);
 
-  const atmosphereGeometry = new THREE.SphereGeometry(planetRadius * 1.05, 48, 48);
+  const atmosphereGeometry = new THREE.SphereGeometry(
+    planetRadius * 1.05,
+    48,
+    48
+  );
   const atmosphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      glowColor: { value: new THREE.Color(0xe0b3ff) }
+      glowColor: { value: new THREE.Color(0xe0b3ff) },
     },
     vertexShader: `
         varying vec3 vNormal;
@@ -436,11 +504,11 @@ function createShootingStar() {
     `,
     side: THREE.BackSide,
     blending: THREE.AdditiveBlending,
-    transparent: true
+    transparent: true,
   });
 
   const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-  planet.add(atmosphere); 
+  planet.add(atmosphere);
   const curve = createRandomCurve();
   const trailPoints = [];
   for (let i = 0; i < trailLength; i++) {
@@ -452,7 +520,7 @@ function createShootingStar() {
     color: 0x99eaff,
     transparent: true,
     opacity: 0.7,
-    linewidth: 2
+    linewidth: 2,
   });
   const trail = new THREE.Line(trailGeometry, trailMaterial);
 
@@ -476,72 +544,114 @@ function createShootingStar() {
 
 function createRandomCurve() {
   const points = [];
-  const startPoint = new THREE.Vector3(-200 + Math.random() * 100, -100 + Math.random() * 200, -100 + Math.random() * 200);
-  const endPoint = new THREE.Vector3(600 + Math.random() * 200, startPoint.y + (-100 + Math.random() * 200), startPoint.z + (-100 + Math.random() * 200));
-  const controlPoint1 = new THREE.Vector3(startPoint.x + 200 + Math.random() * 100, startPoint.y + (-50 + Math.random() * 100), startPoint.z + (-50 + Math.random() * 100));
-  const controlPoint2 = new THREE.Vector3(endPoint.x - 200 + Math.random() * 100, endPoint.y + (-50 + Math.random() * 100), endPoint.z + (-50 + Math.random() * 100));
+  const startPoint = new THREE.Vector3(
+    -200 + Math.random() * 100,
+    -100 + Math.random() * 200,
+    -100 + Math.random() * 200
+  );
+  const endPoint = new THREE.Vector3(
+    600 + Math.random() * 200,
+    startPoint.y + (-100 + Math.random() * 200),
+    startPoint.z + (-100 + Math.random() * 200)
+  );
+  const controlPoint1 = new THREE.Vector3(
+    startPoint.x + 200 + Math.random() * 100,
+    startPoint.y + (-50 + Math.random() * 100),
+    startPoint.z + (-50 + Math.random() * 100)
+  );
+  const controlPoint2 = new THREE.Vector3(
+    endPoint.x - 200 + Math.random() * 100,
+    endPoint.y + (-50 + Math.random() * 100),
+    endPoint.z + (-50 + Math.random() * 100)
+  );
 
   points.push(startPoint, controlPoint1, controlPoint2, endPoint);
-  return new THREE.CubicBezierCurve3(startPoint, controlPoint1, controlPoint2, endPoint);
+  return new THREE.CubicBezierCurve3(
+    startPoint,
+    controlPoint1,
+    controlPoint2,
+    endPoint
+  );
 }
 
-
-
 function createPlanetTexture(size = 512) {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
 
-  const gradient = ctx.createRadialGradient(size / 2, size / 2, size / 8, size / 2, size / 2, size / 2);
-  gradient.addColorStop(0.00, '#f8bbd0');
-  gradient.addColorStop(0.12, '#f48fb1');
-  gradient.addColorStop(0.22, '#f06292');
-  gradient.addColorStop(0.35, '#ffffff');
-  gradient.addColorStop(0.50, '#e1aaff');
-  gradient.addColorStop(0.62, '#a259f7');
-  gradient.addColorStop(0.75, '#b2ff59');
-  gradient.addColorStop(1.00, '#3fd8c7');
+  const gradient = ctx.createRadialGradient(
+    size / 2,
+    size / 2,
+    size / 8,
+    size / 2,
+    size / 2,
+    size / 2
+  );
+  gradient.addColorStop(0.0, "#f8bbd0");
+  gradient.addColorStop(0.12, "#f48fb1");
+  gradient.addColorStop(0.22, "#f06292");
+  gradient.addColorStop(0.35, "#ffffff");
+  gradient.addColorStop(0.5, "#e1aaff");
+  gradient.addColorStop(0.62, "#a259f7");
+  gradient.addColorStop(0.75, "#b2ff59");
+  gradient.addColorStop(1.0, "#3fd8c7");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, size, size);
 
-  const spotColors = ['#f8bbd0', '#f8bbd0', '#f48fb1', '#f48fb1', '#f06292', '#f06292', '#ffffff', '#e1aaff', '#a259f7', '#b2ff59'];
+  const spotColors = [
+    "#f8bbd0",
+    "#f8bbd0",
+    "#f48fb1",
+    "#f48fb1",
+    "#f06292",
+    "#f06292",
+    "#ffffff",
+    "#e1aaff",
+    "#a259f7",
+    "#b2ff59",
+  ];
   for (let i = 0; i < 40; i++) {
     const x = Math.random() * size;
     const y = Math.random() * size;
     const radius = 30 + Math.random() * 120;
     const color = spotColors[Math.floor(Math.random() * spotColors.length)];
     const spotGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    spotGradient.addColorStop(0, color + 'cc');
-    spotGradient.addColorStop(1, color + '00');
+    spotGradient.addColorStop(0, color + "cc");
+    spotGradient.addColorStop(1, color + "00");
     ctx.fillStyle = spotGradient;
     ctx.fillRect(0, 0, size, size);
   }
 
-
   for (let i = 0; i < 8; i++) {
     ctx.beginPath();
     ctx.moveTo(Math.random() * size, Math.random() * size);
-    ctx.bezierCurveTo(Math.random() * size, Math.random() * size, Math.random() * size, Math.random() * size, Math.random() * size, Math.random() * size);
-    ctx.strokeStyle = 'rgba(180, 120, 200, ' + (0.12 + Math.random() * 0.18) + ')';
+    ctx.bezierCurveTo(
+      Math.random() * size,
+      Math.random() * size,
+      Math.random() * size,
+      Math.random() * size,
+      Math.random() * size,
+      Math.random() * size
+    );
+    ctx.strokeStyle =
+      "rgba(180, 120, 200, " + (0.12 + Math.random() * 0.18) + ")";
     ctx.lineWidth = 8 + Math.random() * 18;
     ctx.stroke();
   }
 
-
   if (ctx.filter !== undefined) {
-    ctx.filter = 'blur(2px)';
+    ctx.filter = "blur(2px)";
     ctx.drawImage(canvas, 0, 0);
-    ctx.filter = 'none';
+    ctx.filter = "none";
   }
 
   return new THREE.CanvasTexture(canvas);
 }
 
-
 const stormShader = {
   uniforms: {
     time: { value: 0.0 },
-    baseTexture: { value: null }
+    baseTexture: { value: null },
   },
   vertexShader: `
         varying vec2 vUv;
@@ -565,9 +675,8 @@ const stormShader = {
             texColor.rgb += noise * vec3(0.8, 0.4, 0.2);
             gl_FragColor = texColor;
         }
-    `
+    `,
 };
-
 
 const planetRadius = 10;
 const planetGeometry = new THREE.SphereGeometry(planetRadius, 48, 48);
@@ -575,23 +684,24 @@ const planetTexture = createPlanetTexture();
 const planetMaterial = new THREE.ShaderMaterial({
   uniforms: {
     time: { value: 0.0 },
-    baseTexture: { value: planetTexture }
+    baseTexture: { value: planetTexture },
   },
   vertexShader: stormShader.vertexShader,
-  fragmentShader: stormShader.fragmentShader
+  fragmentShader: stormShader.fragmentShader,
 });
 const planet = new THREE.Mesh(planetGeometry, planetMaterial);
 planet.position.set(0, 0, 0);
 scene.add(planet);
 
-
 //Ganti Deskripsi Planet
 const ringTexts = [
-  'Galaxy of love From ...',//untuk deskripsi planet layer 1
-  "I love you",//untuk deskripsi planet layer 2
-  "♡Happy Girlfriend day♡",//untuk deskripsi planet layer 3
-  "01/08/2025",//untuk deskripsi planet layer 4
-  ...(window.dataCCD && window.dataCCD.data.ringTexts ? window.dataCCD.data.ringTexts : [])
+  "Galaxy of love From Nanda Rizkiani", //untuk deskripsi planet layer 1
+  "I love you", //untuk deskripsi planet layer 2
+  "♡Happy Birthday♡", //untuk deskripsi planet layer 3
+  "20/10/2025", //untuk deskripsi planet layer 4
+  ...(window.dataCCD && window.dataCCD.data.ringTexts
+    ? window.dataCCD.data.ringTexts
+    : []),
 ];
 
 function createTextRings() {
@@ -601,20 +711,24 @@ function createTextRings() {
   window.textRings = [];
 
   for (let i = 0; i < numRings; i++) {
-    const text = ringTexts[i % ringTexts.length] + '   '; 
+    const text = ringTexts[i % ringTexts.length] + "   ";
     const ringRadius = baseRingRadius + i * ringSpacing;
 
     function getCharType(char) {
       const charCode = char.charCodeAt(0);
-      if ((charCode >= 0x4E00 && charCode <= 0x9FFF) || // CJK
-        (charCode >= 0x3040 && charCode <= 0x309F) || // Hiragana
-        (charCode >= 0x30A0 && charCode <= 0x30FF) || // Katakana
-        (charCode >= 0xAC00 && charCode <= 0xD7AF)) { // Korean
-        return 'cjk';
-      } else if (charCode >= 0 && charCode <= 0x7F) { // Latin
-        return 'latin';
+      if (
+        (charCode >= 0x4e00 && charCode <= 0x9fff) || // CJK
+        (charCode >= 0x3040 && charCode <= 0x309f) || // Hiragana
+        (charCode >= 0x30a0 && charCode <= 0x30ff) || // Katakana
+        (charCode >= 0xac00 && charCode <= 0xd7af)
+      ) {
+        // Korean
+        return "cjk";
+      } else if (charCode >= 0 && charCode <= 0x7f) {
+        // Latin
+        return "latin";
       }
-      return 'other';
+      return "other";
     }
 
     let charCounts = { cjk: 0, latin: 0, other: 0 };
@@ -643,19 +757,18 @@ function createTextRings() {
     const textureHeight = 150;
     const fontSize = Math.max(130, 0.8 * textureHeight);
 
-
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
     tempCtx.font = `bold ${fontSize}px Arial, sans-serif`;
     let singleText = ringTexts[i % ringTexts.length];
-    const separator = '   ';
+    const separator = "   ";
     let repeatedTextSegment = singleText + separator;
 
     let segmentWidth = tempCtx.measureText(repeatedTextSegment).width;
-    let textureWidthCircumference = 2 * Math.PI * ringRadius * 180; 
+    let textureWidthCircumference = 2 * Math.PI * ringRadius * 180;
     let repeatCount = Math.ceil(textureWidthCircumference / segmentWidth);
 
-    let fullText = '';
+    let fullText = "";
     for (let j = 0; j < repeatCount; j++) {
       fullText += repeatedTextSegment;
     }
@@ -666,28 +779,26 @@ function createTextRings() {
       finalTextureWidth = segmentWidth;
     }
 
-
-    const textCanvas = document.createElement('canvas');
+    const textCanvas = document.createElement("canvas");
     textCanvas.width = Math.ceil(Math.max(1, finalTextureWidth));
     textCanvas.height = textureHeight;
-    const ctx = textCanvas.getContext('2d');
+    const ctx = textCanvas.getContext("2d");
 
     ctx.clearRect(0, 0, textCanvas.width, textureHeight);
     ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = "white";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
 
-    ctx.shadowColor = '#e0b3ff';
+    ctx.shadowColor = "#e0b3ff";
     ctx.shadowBlur = 18;
     ctx.lineWidth = 7;
-    ctx.strokeStyle = '#fff';
-    ctx.strokeText(fullText, 0, textureHeight * 0.82); 
+    ctx.strokeStyle = "#fff";
+    ctx.strokeText(fullText, 0, textureHeight * 0.82);
 
-
-    ctx.shadowColor = '#ffb3de';
+    ctx.shadowColor = "#ffb3de";
     ctx.shadowBlur = 24;
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = "#fff";
     ctx.fillText(fullText, 0, textureHeight * 0.84);
 
     const ringTexture = new THREE.CanvasTexture(textCanvas);
@@ -695,7 +806,14 @@ function createTextRings() {
     ringTexture.repeat.x = finalTextureWidth / textureWidthCircumference;
     ringTexture.needsUpdate = true;
 
-    const ringGeometry = new THREE.CylinderGeometry(ringRadius, ringRadius, 1, 128, 1, true);
+    const ringGeometry = new THREE.CylinderGeometry(
+      ringRadius,
+      ringRadius,
+      1,
+      128,
+      1,
+      true
+    );
 
     const ringMaterial = new THREE.MeshBasicMaterial({
       map: ringTexture,
@@ -715,14 +833,20 @@ function createTextRings() {
     ringGroup.userData = {
       ringRadius: ringRadius,
       angleOffset: 0.15 * Math.PI * 0.5,
-      speed: 0.002 + 0.00025, 
-      tiltSpeed: 0, rollSpeed: 0, pitchSpeed: 0,
-      tiltAmplitude: Math.PI / 3, rollAmplitude: Math.PI / 6, pitchAmplitude: Math.PI / 8, 
-      tiltPhase: Math.PI * 2, rollPhase: Math.PI * 2, pitchPhase: Math.PI * 2,
-      isTextRing: true
+      speed: 0.002 + 0.00025,
+      tiltSpeed: 0,
+      rollSpeed: 0,
+      pitchSpeed: 0,
+      tiltAmplitude: Math.PI / 3,
+      rollAmplitude: Math.PI / 6,
+      pitchAmplitude: Math.PI / 8,
+      tiltPhase: Math.PI * 2,
+      rollPhase: Math.PI * 2,
+      pitchPhase: Math.PI * 2,
+      isTextRing: true,
     };
 
-    const initialRotationX = i / numRings * (Math.PI / 1);
+    const initialRotationX = (i / numRings) * (Math.PI / 1);
     ringGroup.rotation.x = initialRotationX;
     scene.add(ringGroup);
     window.textRings.push(ringGroup);
@@ -735,9 +859,10 @@ function updateTextRingsRotation() {
   if (!window.textRings || !camera) return;
 
   window.textRings.forEach((ringGroup, index) => {
-    ringGroup.children.forEach(child => {
+    ringGroup.children.forEach((child) => {
       if (child.userData.initialAngle !== undefined) {
-        const angle = child.userData.initialAngle + ringGroup.userData.angleOffset;
+        const angle =
+          child.userData.initialAngle + ringGroup.userData.angleOffset;
         const x = Math.cos(angle) * child.userData.ringRadius;
         const z = Math.sin(angle) * child.userData.ringRadius;
         child.position.set(x, 0, z);
@@ -745,7 +870,9 @@ function updateTextRingsRotation() {
         const worldPos = new THREE.Vector3();
         child.getWorldPosition(worldPos);
 
-        const lookAtVector = new THREE.Vector3().subVectors(camera.position, worldPos).normalize();
+        const lookAtVector = new THREE.Vector3()
+          .subVectors(camera.position, worldPos)
+          .normalize();
         const rotationY = Math.atan2(lookAtVector.x, lookAtVector.z);
         child.rotation.y = rotationY;
       }
@@ -760,22 +887,28 @@ function animatePlanetSystem() {
       const userData = ringGroup.userData;
       userData.angleOffset += userData.speed;
 
+      const tilt =
+        Math.sin(time * userData.tiltSpeed + userData.tiltPhase) *
+        userData.tiltAmplitude;
+      const roll =
+        Math.cos(time * userData.rollSpeed + userData.rollPhase) *
+        userData.rollAmplitude;
+      const pitch =
+        Math.sin(time * userData.pitchSpeed + userData.pitchPhase) *
+        userData.pitchAmplitude;
 
-      const tilt = Math.sin(time * userData.tiltSpeed + userData.tiltPhase) * userData.tiltAmplitude;
-      const roll = Math.cos(time * userData.rollSpeed + userData.rollPhase) * userData.rollAmplitude;
-      const pitch = Math.sin(time * userData.pitchSpeed + userData.pitchPhase) * userData.pitchAmplitude;
-
-      ringGroup.rotation.x = (index / window.textRings.length) * (Math.PI / 1) + tilt;
+      ringGroup.rotation.x =
+        (index / window.textRings.length) * (Math.PI / 1) + tilt;
       ringGroup.rotation.z = roll;
       ringGroup.rotation.y = userData.angleOffset + pitch;
 
-      const verticalBob = Math.sin(time * (userData.tiltSpeed * 0.7) + userData.tiltPhase) * 0.3;
+      const verticalBob =
+        Math.sin(time * (userData.tiltSpeed * 0.7) + userData.tiltPhase) * 0.3;
       ringGroup.position.y = verticalBob;
 
-      const pulse = (Math.sin(time * 1.5 + index) + 1) / 2; 
+      const pulse = (Math.sin(time * 1.5 + index) + 1) / 2;
       const textMesh = ringGroup.children[0];
       if (textMesh && textMesh.material) {
-
         textMesh.material.opacity = 0.7 + pulse * 0.3;
       }
     });
@@ -783,12 +916,11 @@ function animatePlanetSystem() {
   }
 }
 
-
 let galaxyAudio = null;
 
 function preloadGalaxyAudio() {
   const audioSources = [
-   "https://www.youtube.com/watch?v=d4OMqGKBl6E&list=RDd4OMqGKBl6E&start_radio=1&ab_channel=ARS"
+    "https://www.youtube.com/watch?v=d4OMqGKBl6E&list=RDd4OMqGKBl6E&start_radio=1&ab_channel=ARS",
   ];
 
   const randomIndex = Math.floor(Math.random() * audioSources.length);
@@ -803,29 +935,25 @@ function preloadGalaxyAudio() {
 
 function playGalaxyAudio() {
   if (galaxyAudio) {
-    galaxyAudio.play().catch(err => {
+    galaxyAudio.play().catch((err) => {
       console.warn("Audio play blocked or delayed:", err);
     });
   }
 }
 preloadGalaxyAudio();
 
-
-
 let fadeOpacity = 0.1;
 let fadeInProgress = false;
-
 
 let hintIcon;
 let hintText;
 
 function createHintIcon() {
   hintIcon = new THREE.Group();
-  hintIcon.name = 'hint-icon-group';
+  hintIcon.name = "hint-icon-group";
   scene.add(hintIcon);
 
   const cursorVisuals = new THREE.Group();
-
 
   const cursorShape = new THREE.Shape();
   const h = 1.5;
@@ -840,18 +968,17 @@ function createHintIcon() {
   cursorShape.lineTo(w * 0.4, -h * 0.7);
   cursorShape.closePath();
 
-
   const backgroundGeometry = new THREE.ShapeGeometry(cursorShape);
   const backgroundMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffffff, 
-    side: THREE.DoubleSide
+    color: 0xffffff,
+    side: THREE.DoubleSide,
   });
   const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
 
   const foregroundGeometry = new THREE.ShapeGeometry(cursorShape);
   const foregroundMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffffff, 
-    side: THREE.DoubleSide
+    color: 0xffffff,
+    side: THREE.DoubleSide,
   });
   const foregroundMesh = new THREE.Mesh(foregroundGeometry, foregroundMaterial);
 
@@ -862,19 +989,21 @@ function createHintIcon() {
   cursorVisuals.position.y = h / 2;
   cursorVisuals.rotation.x = Math.PI / 2;
 
-  
   const ringGeometry = new THREE.RingGeometry(1.8, 2.0, 32);
-  const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+  const ringMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.6,
+  });
   const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
   ringMesh.rotation.x = Math.PI / 2;
   hintIcon.userData.ringMesh = ringMesh;
 
-
   hintIcon.add(cursorVisuals);
   hintIcon.add(ringMesh);
 
-
-  hintIcon.position.set(1.5, 1.5, 15); 
+  hintIcon.position.set(1.5, 1.5, 15);
 
   hintIcon.scale.set(0.8, 0.8, 0.8);
   hintIcon.lookAt(planet.position);
@@ -891,16 +1020,15 @@ function animateHintIcon(time) {
   if (!introStarted) {
     hintIcon.visible = true;
 
-
     const tapFrequency = 2.5;
     const tapAmplitude = 1.5;
     const tapOffset = Math.sin(time * tapFrequency) * tapAmplitude;
 
-
     const direction = new THREE.Vector3();
     hintIcon.getWorldDirection(direction);
-    hintIcon.position.copy(hintIcon.userData.initialPosition).addScaledVector(direction, -tapOffset);
-
+    hintIcon.position
+      .copy(hintIcon.userData.initialPosition)
+      .addScaledVector(direction, -tapOffset);
 
     const ring = hintIcon.userData.ringMesh;
     const ringScale = 1 + Math.sin(time * tapFrequency) * 0.1;
@@ -914,7 +1042,6 @@ function animateHintIcon(time) {
       hintText.lookAt(camera.position);
     }
   } else {
-
     if (hintIcon) hintIcon.visible = false;
 
     if (hintText) hintText.visible = false;
@@ -924,7 +1051,6 @@ function animateHintIcon(time) {
 function animate() {
   requestAnimationFrame(animate);
   const time = performance.now() * 0.001;
-
 
   animateHintIcon(time);
 
@@ -937,17 +1063,19 @@ function animate() {
   }
 
   if (!introStarted) {
-
     fadeOpacity = 0.1;
-    scene.traverse(obj => {
-      if (obj.name === 'starfield') {
+    scene.traverse((obj) => {
+      if (obj.name === "starfield") {
         if (obj.points && obj.material.opacity !== undefined) {
           obj.material.transparent = false;
           obj.material.opacity = 1;
         }
         return;
       }
-      if (obj.userData.isTextRing || (obj.parent && obj.parent.userData && obj.parent.userData.isTextRing)) {
+      if (
+        obj.userData.isTextRing ||
+        (obj.parent && obj.parent.userData && obj.parent.userData.isTextRing)
+      ) {
         if (obj.material && obj.material.opacity !== undefined) {
           obj.material.transparent = false;
           obj.material.opacity = 1;
@@ -955,7 +1083,13 @@ function animate() {
         if (obj.material && obj.material.color) {
           obj.material.color.set(0xffffff);
         }
-      } else if (obj !== planet && obj !== centralGlow && obj !== hintIcon && obj.type !== 'Scene' && !obj.parent.isGroup) {
+      } else if (
+        obj !== planet &&
+        obj !== centralGlow &&
+        obj !== hintIcon &&
+        obj.type !== "Scene" &&
+        !obj.parent.isGroup
+      ) {
         if (obj.material && obj.material.opacity !== undefined) {
           obj.material.transparent = true;
           obj.material.opacity = 0.1;
@@ -965,9 +1099,18 @@ function animate() {
     planet.visible = true;
     centralGlow.visible = true;
   } else {
-
-    scene.traverse(obj => {
-      if (!(obj.userData.isTextRing || (obj.parent && obj.parent.userData && obj.parent.userData.isTextRing) || obj === planet || obj === centralGlow || obj.type === 'Scene')) {
+    scene.traverse((obj) => {
+      if (
+        !(
+          obj.userData.isTextRing ||
+          (obj.parent &&
+            obj.parent.userData &&
+            obj.parent.userData.isTextRing) ||
+          obj === planet ||
+          obj === centralGlow ||
+          obj.type === "Scene"
+        )
+      ) {
         if (obj.material && obj.material.opacity !== undefined) {
           obj.material.transparent = true;
           obj.material.opacity = fadeOpacity;
@@ -983,7 +1126,6 @@ function animate() {
       }
     });
   }
-
 
   for (let i = shootingStars.length - 1; i >= 0; i--) {
     const star = shootingStars[i];
@@ -1023,15 +1165,17 @@ function animate() {
     createShootingStar();
   }
 
-  scene.traverse(obj => {
+  scene.traverse((obj) => {
     if (obj.isPoints && obj.userData.materialNear && obj.userData.materialFar) {
-      const positionAttr = obj.geometry.getAttribute('position');
+      const positionAttr = obj.geometry.getAttribute("position");
       let isClose = false;
       for (let i = 0; i < positionAttr.count; i++) {
         const worldX = positionAttr.getX(i) + obj.position.x;
         const worldY = positionAttr.getY(i) + obj.position.y;
         const worldZ = positionAttr.getZ(i) + obj.position.z;
-        const distance = camera.position.distanceTo(new THREE.Vector3(worldX, worldY, worldZ));
+        const distance = camera.position.distanceTo(
+          new THREE.Vector3(worldX, worldY, worldZ)
+        );
         if (distance < 10) {
           isClose = true;
           break;
@@ -1054,7 +1198,11 @@ function animate() {
   planet.lookAt(camera.position);
   animatePlanetSystem();
 
-  if (starField && starField.material && starField.material.opacity !== undefined) {
+  if (
+    starField &&
+    starField.material &&
+    starField.material.opacity !== undefined
+  ) {
     starField.material.opacity = 1.0;
     starField.material.transparent = false;
   }
@@ -1063,34 +1211,34 @@ function animate() {
 }
 function createHintText() {
   const canvasSize = 512;
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = canvas.height = canvasSize;
-  const context = canvas.getContext('2d');
+  const context = canvas.getContext("2d");
   const fontSize = 50;
-  const text = 'Happy Girlfriend Day!';
+  const text = "Happy Girlfriend Day!";
   context.font = `bold ${fontSize}px Arial, sans-serif`;
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.shadowColor = '#ffb3de';
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.shadowColor = "#ffb3de";
   context.shadowBlur = 5;
   context.lineWidth = 2;
-  context.strokeStyle = 'rgba(255, 200, 220, 0.8)';
+  context.strokeStyle = "rgba(255, 200, 220, 0.8)";
   context.strokeText(text, canvasSize / 2, canvasSize / 2);
-  context.shadowColor = '#e0b3ff';
+  context.shadowColor = "#e0b3ff";
   context.shadowBlur = 5;
   context.lineWidth = 2;
-  context.strokeStyle = 'rgba(220, 180, 255, 0.5)';
+  context.strokeStyle = "rgba(220, 180, 255, 0.5)";
   context.strokeText(text, canvasSize / 2, canvasSize / 2);
-  context.shadowColor = 'transparent';
+  context.shadowColor = "transparent";
   context.shadowBlur = 0;
-  context.fillStyle = 'white';
+  context.fillStyle = "white";
   context.fillText(text, canvasSize / 2, canvasSize / 2);
   const textTexture = new THREE.CanvasTexture(canvas);
   textTexture.needsUpdate = true;
   const textMaterial = new THREE.MeshBasicMaterial({
     map: textTexture,
     transparent: true,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
   });
   const planeGeometry = new THREE.PlaneGeometry(16, 8);
   hintText = new THREE.Mesh(planeGeometry, textMaterial);
@@ -1098,13 +1246,11 @@ function createHintText() {
   scene.add(hintText);
 }
 
-
-
 createShootingStar();
-createHintIcon(); 
+createHintIcon();
 createHintText();
 
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1113,7 +1259,11 @@ window.addEventListener('resize', () => {
 });
 
 function startCameraAnimation() {
-  const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+  const startPos = {
+    x: camera.position.x,
+    y: camera.position.y,
+    z: camera.position.z,
+  };
   const midPos1 = { x: startPos.x, y: 0, z: startPos.z };
   const midPos2 = { x: startPos.x, y: 0, z: 160 };
   const endPos = { x: -40, y: 100, z: 100 };
@@ -1124,7 +1274,6 @@ function startCameraAnimation() {
   let progress = 0;
 
   function animatePath() {
-
     progress += 0.0025;
     let newPos;
 
@@ -1167,15 +1316,11 @@ function startCameraAnimation() {
   animatePath();
 }
 
-
-
-
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let introStarted = false;
 
-
-const originalStarCount = starGeometry.getAttribute('position').count;
+const originalStarCount = starGeometry.getAttribute("position").count;
 if (starField && starField.geometry) {
   starField.geometry.setDrawRange(0, Math.floor(originalStarCount * 0.1));
 }
@@ -1184,11 +1329,14 @@ function requestFullScreen() {
   const elem = document.documentElement;
   if (elem.requestFullscreen) {
     elem.requestFullscreen();
-  } else if (elem.mozRequestFullScreen) { // Firefox
+  } else if (elem.mozRequestFullScreen) {
+    // Firefox
     elem.mozRequestFullScreen();
-  } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, Opera
+  } else if (elem.webkitRequestFullscreen) {
+    // Chrome, Safari, Opera
     elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) { // IE/Edge
+  } else if (elem.msRequestFullscreen) {
+    // IE/Edge
     elem.msRequestFullscreen();
   }
 }
@@ -1221,54 +1369,50 @@ renderer.domElement.addEventListener("click", onCanvasClick);
 
 animate();
 
-renderer.domElement.addEventListener('click', onCanvasClick);
+renderer.domElement.addEventListener("click", onCanvasClick);
 
 animate();
 
-planet.name = 'main-planet';
-centralGlow.name = 'main-glow';
-
+planet.name = "main-planet";
+centralGlow.name = "main-glow";
 
 function setFullScreen() {
   const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-  const container = document.getElementById('container');
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+  const container = document.getElementById("container");
   if (container) {
     container.style.height = `${window.innerHeight}px`;
   }
 }
 
-window.addEventListener('resize', setFullScreen);
-window.addEventListener('orientationchange', () => {
+window.addEventListener("resize", setFullScreen);
+window.addEventListener("orientationchange", () => {
   setTimeout(setFullScreen, 300);
 });
 setFullScreen();
 
-const preventDefault = event => event.preventDefault();
-document.addEventListener('touchmove', preventDefault, { passive: false });
-document.addEventListener('gesturestart', preventDefault, { passive: false });
+const preventDefault = (event) => event.preventDefault();
+document.addEventListener("touchmove", preventDefault, { passive: false });
+document.addEventListener("gesturestart", preventDefault, { passive: false });
 
-const container = document.getElementById('container');
+const container = document.getElementById("container");
 if (container) {
-  container.addEventListener('touchmove', preventDefault, { passive: false });
+  container.addEventListener("touchmove", preventDefault, { passive: false });
 }
 
-
-
 function checkOrientation() {
-
-  const isMobilePortrait = window.innerHeight > window.innerWidth && 'ontouchstart' in window;
+  const isMobilePortrait =
+    window.innerHeight > window.innerWidth && "ontouchstart" in window;
 
   if (isMobilePortrait) {
-    document.body.classList.add('portrait-mode');
+    document.body.classList.add("portrait-mode");
   } else {
-    document.body.classList.remove('portrait-mode');
+    document.body.classList.remove("portrait-mode");
   }
 }
 
-window.addEventListener('DOMContentLoaded', checkOrientation);
-window.addEventListener('resize', checkOrientation);
-window.addEventListener('orientationchange', () => {
-
+window.addEventListener("DOMContentLoaded", checkOrientation);
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("orientationchange", () => {
   setTimeout(checkOrientation, 200);
 });
